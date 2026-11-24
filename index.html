@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17202A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mis cuentas">
+<title>Mis cuentas</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317202A'/%3E%3Cpath d='M22 14v22M14 28l8 8 8-8' fill='none' stroke='%2333c47a' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M42 50V28M34 36l8-8 8 8' fill='none' stroke='%23ff6a5c' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --ink:#17202A; --mut:#5B6670; --bg:#F1F4F2; --card:#fff; --line:#D9DFDB;
+  --in:#0B7A43; --in-soft:#DDF1E5; --out:#C62B20; --out-soft:#FBE3E0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--ink);color:var(--ink);overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:520px;margin:0 auto;position:relative;background:var(--bg);overflow:hidden}
+button,label{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0;touch-action:manipulation}
+button:focus-visible,label:focus-within{outline:3px solid #1D4ED8;outline-offset:2px}
+.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.press{transition:transform .08s}
+.press:active{transform:scale(.96)}
+
+/* encabezado */
+.top{display:flex;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top)) 20px 6px}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800}
+.brand .ic{font-size:30px}
+.icon-btn{width:56px;height:56px;border-radius:16px;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-size:30px}
+.icon-btn[aria-pressed=false]{color:var(--mut)}
+.scroll{flex:1;overflow-y:auto;padding:0 20px 24px;-webkit-overflow-scrolling:touch}
+
+/* saldo */
+.bal{padding:10px 0 0}
+.bal .lbl{font-size:22px;font-weight:700;color:var(--mut)}
+.bal .n{font-size:58px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:2px 0 6px;white-space:nowrap}
+.bal .n.neg{color:var(--out)}
+.cap{font-size:16px;font-weight:700;color:var(--mut);margin:4px 0 2px}
+.mini{display:flex;gap:18px;font-size:19px;font-weight:700;flex-wrap:wrap}
+.mini span{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.mini .ic{font-size:22px}
+.mini .i{color:var(--in)}.mini .o{color:var(--out)}
+
+/* botones grandes */
+.bigbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 26px}
+.big{height:172px;border-radius:24px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.big .ic{font-size:62px;margin-bottom:6px}
+.big b{font-size:36px;font-weight:800;line-height:1}
+.big span{font-size:19px;font-weight:600;opacity:.92}
+.big.in{background:var(--in)}.big.out{background:var(--out)}
+
+/* listas */
+.h2{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;margin:6px 0 2px}
+.h2 .ic{font-size:26px}
+.row{display:flex;align-items:center;gap:14px;min-height:78px;padding:10px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.dot{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:30px;flex:none}
+.dot.in{background:var(--in-soft);color:var(--in)}.dot.out{background:var(--out-soft);color:var(--out)}
+.row>span:nth-child(2){min-width:0}
+.row .nm{font-size:21px;font-weight:700;line-height:1.15}
+.row .dt{font-size:16px;color:var(--mut);margin-top:2px}
+.row .am{margin-left:auto;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.am.in{color:var(--in)}.am.out{color:var(--out)}
+
+/* primera vez */
+.hello{background:#fff;border:2px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.hello .line{display:flex;align-items:center;gap:14px;font-size:20px;font-weight:700;line-height:1.2}
+.hear{width:100%;height:64px;border-radius:18px;background:var(--ink);color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px}
+.hear .ic{font-size:30px}
+
+/* barra inferior */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.tab{height:66px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:16px;font-weight:700;color:var(--mut)}
+.tab .ic{font-size:30px}
+.tab[aria-current=page]{background:var(--ink);color:#fff}
+
+/* mes */
+.mnav{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;gap:8px;margin:6px 0 14px}
+.mnav .icon-btn{width:60px;height:60px}
+.mnav .icon-btn:disabled{opacity:.3}
+.mnav .mm{text-align:center;font-size:26px;font-weight:800;line-height:1.1}
+.mnav .mm small{display:block;font-size:17px;color:var(--mut);font-weight:700}
+.sum{background:#fff;border:2px solid var(--line);border-radius:22px;padding:6px 16px}
+.sum .r{display:flex;align-items:center;gap:14px;min-height:72px}
+.sum .r+.r{border-top:1px solid var(--line)}
+.sum .c{display:flex;flex-direction:column;min-width:0}
+.sum .w{font-size:19px;font-weight:700;color:var(--mut);line-height:1.1}
+.sum .v{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.15;white-space:nowrap}
+.sum .v.in{color:var(--in)}.sum .v.out{color:var(--out)}
+.sum .r.tot .dot{background:var(--ink);color:#fff}
+.hear.sm{height:56px;margin:12px 0 0;font-size:20px}
+.bars{margin:6px 0 4px}
+.bar{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;margin:12px 0}
+.bar .dot{width:44px;height:44px;font-size:24px;border-radius:13px}
+.bar .t{display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin-bottom:6px;gap:8px}
+.bar .t span:last-child{font-variant-numeric:tabular-nums}
+.track{height:14px;background:#E3E8E5;border-radius:7px;overflow:hidden}
+.fill{height:100%;border-radius:7px}
+.fill.in{background:var(--in)}.fill.out{background:var(--out)}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 10px;color:var(--mut);font-size:20px;font-weight:700;text-align:center}
+.empty .ic{font-size:56px}
+.backup{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:26px}
+.backup button{height:76px;border-radius:18px;background:#fff;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:16px;font-weight:700}
+.backup .ic{font-size:30px}
+.warn{background:#FFF1C9;border:2px solid #E5B93A;border-radius:14px;padding:10px 14px;font-size:17px;font-weight:700;margin:6px 20px 0}
+
+/* agregar */
+.add{display:flex;flex-direction:column;height:100%;background:var(--bg)}
+.add.in{--c:var(--in)}.add.out{--c:var(--out)}
+.add header{background:var(--c);color:#fff;display:flex;align-items:center;gap:14px;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;min-height:80px}
+.back{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:30px;color:#fff}
+.add h1{margin:0;font-size:34px;font-weight:800;display:flex;align-items:center;gap:12px}
+.add h1 .ic{font-size:38px}
+.q{font-size:27px;font-weight:800;margin:18px 20px 12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 20px;overflow-y:auto;flex:1;align-content:start}
+.tile{min-height:112px;background:#fff;border:2px solid var(--line);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:18px;font-weight:700;padding:8px 2px}
+.tile .ic{font-size:44px;color:var(--c)}
+.tile:active{border-color:var(--c)}
+.chosen{display:flex;align-items:center;gap:12px;margin:12px 20px 0;min-height:64px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:6px 14px 6px 8px;font-size:22px;font-weight:800;text-align:left}
+.chosen .dot{background:var(--c);color:#fff;width:48px;height:48px;font-size:28px}
+.chosen .sw{margin-left:auto;font-size:26px;color:var(--mut)}
+.amt{font-size:58px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;color:var(--c);padding:10px 12px 6px;line-height:1.1;width:100%;letter-spacing:-.02em;white-space:nowrap}
+.amt.empty0{color:#9AA5AD}
+.dates{display:flex;gap:10px;padding:0 20px}
+.chip{flex:1;height:52px;border-radius:14px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:19px;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}
+.chip .ic{font-size:26px}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(52px,1fr);gap:10px;padding:12px 20px;flex:1;min-height:0}
+.key{background:#fff;border:2px solid var(--line);border-radius:16px;font-size:31px;font-weight:700;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.key .ic{font-size:32px}
+.key.z{font-size:26px}
+.ok{margin:0 20px calc(14px + env(safe-area-inset-bottom));height:74px;border-radius:20px;background:var(--c);color:#fff;font-size:32px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px;flex:none}
+.ok .ic{font-size:38px}
+.ok[aria-disabled=true]{background:#B4BEB9}
+
+/* capas */
+.layer{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end;max-width:520px;margin:0 auto}
+.scrim{position:absolute;inset:0;background:rgba(23,32,42,.55)}
+.sheet{position:relative;background:#fff;border-radius:26px 26px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom));animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+.sheet .row{border-bottom:0;min-height:84px}
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.dual button{height:92px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:22px;font-weight:800}
+.dual .ic{font-size:36px}
+.dual .del{background:var(--out);color:#fff}
+.dual .keep{background:#fff;border:3px solid var(--ink)}
+.flash{position:absolute;inset:0;z-index:30;background:var(--c);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;animation:pop .2s ease-out}
+.flash.in{--c:var(--in)}.flash.out{--c:var(--out)}
+.flash .ic{font-size:150px;stroke-width:2.4}
+.flash b{font-size:40px;font-weight:800}
+@keyframes pop{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet,.flash{animation:none}.press{transition:none}}
+@media (max-height:680px){
+  .big{height:140px}
+  .amt{padding:4px 12px 2px}.key{font-size:27px}.ok{height:64px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<script>
+(()=>{
+'use strict';
+const KEY='miscuentas_v1';
+const $=s=>document.querySelector(s);
+
+/* ---------- íconos (dibujados, no emojis) ---------- */
+const P={
+ wallet:'<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><path d="M4 7.5V18a2 2 0 0 0 2 2h14V8H6.5A2.5 2.5 0 0 1 4 5.5"/><circle cx="16.5" cy="14" r="1.2"/>',
+ in:'<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
+ out:'<path d="M12 15V3M7 8l5-5 5 5M4 20h16"/>',
+ home:'<path d="M3 11l9-8 9 8M5 9.5V20h14V9.5M10 20v-6h4v6"/>',
+ chart:'<path d="M5 20V11M12 20V4M19 20v-6"/>',
+ spk:'<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/>',
+ spkoff:'<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9.5l5 5M22 9.5l-5 5"/>',
+ check:'<path d="M4 12.5l5 5L20 6.5"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>',
+ next:'<path d="M9 5l7 7-7 7"/>',
+ close:'<path d="M6 6l12 12M18 6L6 18"/>',
+ bksp:'<path d="M9 5h11v14H9L3 12z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/>',
+ trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+ cal:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+ disk:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-7h8v7"/>',
+ load:'<path d="M3 8a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 17v-5M9.5 14.5L12 12l2.5 2.5"/>',
+ list:'<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>',
+ /* gastos */
+ comida:'<path d="M6 3v6a3 3 0 0 0 6 0V3M9 3v6M9 12v9"/><path d="M18 21V3c-2.5 1.5-3.5 4.5-3.5 8H18"/>',
+ casa:'<path d="M3 11l9-8 9 8M5 9.5V20h14V9.5M10 20v-6h4v6"/>',
+ transporte:'<rect x="4" y="3" width="16" height="14" rx="3"/><path d="M4 11h16M8 20v-3M16 20v-3M8.5 14.2h.01M15.5 14.2h.01"/>',
+ servicios:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1.1 1.2 1.1 2.2h5c0-1 .5-1.7 1.1-2.2A6 6 0 0 0 12 3z"/>',
+ salud:'<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/>',
+ ropa:'<path d="M8.5 3L3 6l2 4.5 3-1V21h8V9.5l3 1L21 6l-5.5-3a3.6 3.6 0 0 1-7 0z"/>',
+ ninos:'<path d="M8.5 7a3.5 3.5 0 0 1 7 0"/><rect x="5" y="7" width="14" height="14" rx="4"/><path d="M9 14h6M9 17.5h6"/>',
+ celular:'<rect x="7" y="2.5" width="10" height="19" rx="3"/><path d="M10.5 18.5h3"/>',
+ deudas:'<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18M7 15.5h3"/>',
+ gustos:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+ ahorro:'<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.8 9.3h-3.5a1.9 1.9 0 0 0 0 3.8h1.4a1.9 1.9 0 0 1 0 3.8H9.2"/>',
+ otro:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>',
+ /* ingresos */
+ trabajo:'<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 13h18"/>',
+ ventas:'<path d="M4.5 8h15L18.5 20h-13z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+ regalo:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13.5h18M12 9c-3 0-5-4-2-5s4 3 2 5zM12 9c3 0 5-4 2-5s-4 3-2 5z"/>',
+ ayuda:'<path d="M12 20.5s-8-5-8-11A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5c0 6-8 11-8 11z"/>',
+ prestamo:'<path d="M4 8h14l-3-3M20 16H6l3 3"/>'
+};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
+
+const OUT=[['comida','Comida'],['casa','Casa'],['transporte','Transporte'],['servicios','Servicios'],['salud','Salud'],['ropa','Ropa'],['ninos','Niños'],['celular','Celular'],['deudas','Deudas'],['gustos','Gustos'],['ahorro','Ahorro'],['otro','Otro']];
+const INC=[['trabajo','Trabajo'],['ventas','Ventas'],['regalo','Regalo'],['ayuda','Ayuda'],['prestamo','Préstamo'],['otro','Otro']];
+const cats=t=>t==='in'?INC:OUT;
+const catLabel=(t,c)=>(cats(t).find(x=>x[0]===c)||[c,'Otro'])[1];
+const catIcon=(t,c)=>cats(t).some(x=>x[0]===c)?c:'otro';
+
+/* ---------- fechas y dinero ---------- */
+const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MC=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>iso(new Date());
+const yest=()=>{const d=new Date();d.setDate(d.getDate()-1);return iso(d)};
+const dlabel=s=>s===today()?'Hoy':s===yest()?'Ayer':`${+s.slice(8)} ${MC[+s.slice(5,7)-1]}`;
+const ym=s=>s.slice(0,7);
+const money=n=>'$ '+String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const fit=(s,base,w,min=20)=>Math.max(min,Math.min(base,Math.floor(w/(s.length*0.6))));
+
+/* ---------- datos ---------- */
+let D={items:[],sound:true}, storageOK=true;
+const NB=()=>window.Android||null;
+function load(){
+  let r=null;
+  try{r=localStorage.getItem(KEY)}catch(e){storageOK=false}
+  if(!r){try{const n=NB();if(n&&n.load){r=n.load()||null; if(r)storageOK=true}}catch(e){}}
+  try{
+    if(r){const o=JSON.parse(r); if(o&&Array.isArray(o.items)) D={items:o.items.filter(valid),sound:o.sound!==false};}
+  }catch(e){}
+}
+function save(){
+  const j=JSON.stringify(D);
+  try{localStorage.setItem(KEY,j)}catch(e){storageOK=false}
+  try{const n=NB();if(n&&n.store){n.store(j);storageOK=true}}catch(e){}
+}
+function valid(i){return i&&(i.t==='in'||i.t==='out')&&Number.isFinite(i.a)&&i.a>0&&/^\d{4}-\d{2}-\d{2}$/.test(i.d)&&typeof i.id==='string'}
+const sum=(t,f)=>D.items.filter(i=>i.t===t&&(!f||f(i))).reduce((s,i)=>s+i.a,0);
+
+/* ---------- voz ---------- */
+let voice=null;
+function pickVoice(){
+  if(!('speechSynthesis' in window))return;
+  const vs=speechSynthesis.getVoices();
+  for(const p of ['es-CO','es-419','es-US','es-MX','es']){
+    const v=vs.find(v=>v.lang&&v.lang.replace('_','-').toLowerCase().startsWith(p.toLowerCase()));
+    if(v){voice=v;return}
+  }
+}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function stopSay(){
+  try{const n=NB();if(n&&n.stopSpeak){n.stopSpeak();return}}catch(e){}
+  try{speechSynthesis.cancel()}catch(e){}
+}
+function say(txt,force){
+  if(!(D.sound||force))return;
+  try{const n=NB();if(n&&n.speak){n.speak(txt);return}}catch(e){}
+  if(!('speechSynthesis' in window))return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang=voice?voice.lang:'es-CO'; if(voice)u.voice=voice; u.rate=.92;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+let tmr=null;
+const sayLater=(t,ms)=>{clearTimeout(tmr);tmr=setTimeout(()=>say(t),ms)};
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}};
+const pesos=n=>`${Math.round(n)} pesos`;
+
+/* ---------- estado de pantalla ---------- */
+const now=new Date();
+let S={tab:'home',mo:`${now.getFullYear()}-${pad(now.getMonth()+1)}`,add:null,sel:null,flash:null};
+
+/* ---------- vistas ---------- */
+function rowHtml(i){
+  const sign=i.t==='in'?'+':'−';
+  return `<button class="row press" data-act="row" data-id="${i.id}" aria-label="${catLabel(i.t,i.c)} ${money(i.a)}">
+    <span class="dot ${i.t}">${ic(catIcon(i.t,i.c))}</span>
+    <span><div class="nm">${catLabel(i.t,i.c)}</div><div class="dt">${dlabel(i.d)}</div></span>
+    <span class="am ${i.t}" style="font-size:${fit(sign+money(i.a),22,Math.min(innerWidth,520)-40-54-14-14-96,14)}px">${sign}${money(i.a)}</span></button>`;
+}
+const sorted=a=>a.slice().sort((x,y)=>y.d.localeCompare(x.d)||(y.ts||0)-(x.ts||0));
+
+function tabs(){
+  const t=(k,i,l)=>`<button class="tab press" data-act="tab" data-tab="${k}" ${S.tab===k?'aria-current="page"':''}>${ic(i)}<span>${l}</span></button>`;
+  return `<nav class="tabs">${t('home','home','Inicio')}${t('mes','chart','Mes')}</nav>`;
+}
+function top(){
+  return `<header class="top"><div class="brand">${ic('wallet')}<span>Mis cuentas</span></div>
+  <button class="icon-btn press" data-act="sound" aria-pressed="${D.sound}" aria-label="${D.sound?'Voz encendida':'Voz apagada'}">${ic(D.sound?'spk':'spkoff')}</button></header>
+  ${storageOK?'':'<div class="warn">Ojo: este celular no está guardando. Abra la app desde Chrome.</div>'}`;
+}
+
+function viewHome(){
+  const bal=sum('in')-sum('out');
+  const mk=ym(today());
+  const mi=sum('in',i=>ym(i.d)===mk), mo=sum('out',i=>ym(i.d)===mk);
+  const bs=(bal<0?'−':'')+money(bal);
+  const last=sorted(D.items).slice(0,6);
+  let body;
+  if(!D.items.length){
+    body=`<div class="hello">
+      <div class="line"><span class="dot in">${ic('in')}</span><span>Verde: cuando <u>entra</u> plata</span></div>
+      <div class="line"><span class="dot out">${ic('out')}</span><span>Rojo: cuando <u>sale</u> plata</span></div>
+      <button class="hear press" data-act="hello">${ic('spk')}<span>Escuchar</span></button></div>`;
+  }else{
+    body=`<div class="h2">${ic('list')}<span>Últimos</span></div>${last.map(rowHtml).join('')}`;
+  }
+  return `${top()}<main class="scroll">
+    <section class="bal"><div class="lbl">Tengo</div>
+      <div class="n ${bal<0?'neg':''}" style="font-size:${fit(bs,58,Math.min(innerWidth,520)-40)}px" data-act="hearbal" role="button" tabindex="0">${bs}</div>
+      <div class="cap">Este mes</div><div class="mini"><span class="i">${ic('in')}${money(mi)}</span><span class="o">${ic('out')}${money(mo)}</span></div></section>
+    <div class="bigbtns">
+      <button class="big in press" data-act="start" data-t="in">${ic('in')}<b>Entró</b><span>plata</span></button>
+      <button class="big out press" data-act="start" data-t="out">${ic('out')}<b>Salió</b><span>plata</span></button></div>
+    ${body}</main>${tabs()}`;
+}
+
+function monthItems(){return D.items.filter(i=>ym(i.d)===S.mo)}
+function bars(t){
+  const m={};
+  monthItems().filter(i=>i.t===t).forEach(i=>{const c=catIcon(t,i.c);m[c]=(m[c]||0)+i.a});
+  const e=Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  if(!e.length)return '';
+  const max=e[0][1];
+  return `<div class="h2" style="margin-top:22px">${ic(t)}<span>${t==='in'?'Entró de':'Salió en'}</span></div><div class="bars">`+
+   e.map(([c,v])=>`<div class="bar"><span class="dot ${t}">${ic(c)}</span><div><div class="t"><span>${catLabel(t,c)}</span><span>${money(v)}</span></div><div class="track"><div class="fill ${t}" style="width:${Math.max(4,v/max*100)}%"></div></div></div></div>`).join('')+`</div>`;
+}
+function viewMes(){
+  const [y,m]=S.mo.split('-').map(Number);
+  const mi=sum('in',i=>ym(i.d)===S.mo), mo=sum('out',i=>ym(i.d)===S.mo), net=mi-mo;
+  const cur=S.mo>=ym(today());
+  const items=sorted(monthItems());
+  const ns=(net<0?'−':'')+money(net);
+  return `${top()}<main class="scroll">
+   <div class="mnav"><button class="icon-btn press" data-act="prev" aria-label="Mes anterior">${ic('back')}</button>
+     <div class="mm">${MES[m-1]}<small>${y}</small></div>
+     <button class="icon-btn press" data-act="next" aria-label="Mes siguiente" ${cur?'disabled':''}>${ic('next')}</button></div>
+   <section class="sum">
+     <div class="r"><span class="dot in">${ic('in')}</span><span class="c"><span class="w">Entró</span><span class="v in" style="font-size:${fit(money(mi),32,Math.min(innerWidth,520)-40-32-68)}px">${money(mi)}</span></span></div>
+     <div class="r"><span class="dot out">${ic('out')}</span><span class="c"><span class="w">Salió</span><span class="v out" style="font-size:${fit(money(mo),32,Math.min(innerWidth,520)-40-32-68)}px">${money(mo)}</span></span></div>
+     <div class="r tot"><span class="dot">${ic('wallet')}</span><span class="c"><span class="w">Quedó</span><span class="v ${net<0?'out':''}" style="font-size:${fit(ns,36,Math.min(innerWidth,520)-40-32-68)}px">${ns}</span></span></div></section>
+   <button class="hear sm press" data-act="hearmes">${ic('spk')}<span>Escuchar</span></button>
+   ${items.length?bars('out')+bars('in')+`<div class="h2" style="margin-top:22px">${ic('list')}<span>Todo</span></div>`+items.map(rowHtml).join(''):`<div class="empty">${ic('wallet')}<span>Nada este mes</span></div>`}
+   <div class="backup"><button class="press" data-act="export">${ic('disk')}<span>Guardar copia</span></button><button class="press" data-act="import">${ic('load')}<span>Recuperar copia</span></button></div>
+  </main>${tabs()}`;
+}
+
+function amtStr(){const n=+S.add.digits||0;return n?money(n):'$ 0'}
+function viewAdd(){
+  const A=S.add, t=A.t;
+  const head=`<header><button class="back press" data-act="back" aria-label="Atrás">${ic('back')}</button><h1>${ic(t)}<span>${t==='in'?'Entró':'Salió'}</span></h1></header>`;
+  if(!A.c){
+    return `<div class="add ${t}">${head}<div class="q">${t==='in'?'¿De dónde vino?':'¿En qué se fue?'}</div>
+      <div class="grid">${cats(t).map(([k,l])=>`<button class="tile press" data-act="cat" data-c="${k}">${ic(k)}<span>${l}</span></button>`).join('')}</div></div>`;
+  }
+  const s=amtStr();
+  const d=A.date, custom=d!==today()&&d!==yest();
+  const keys=['1','2','3','4','5','6','7','8','9','000','0','x'].map(k=>k==='x'
+    ?`<button class="key press" data-act="key" data-k="x" aria-label="Borrar número">${ic('bksp')}</button>`
+    :`<button class="key press ${k==='000'?'z':''}" data-act="key" data-k="${k}">${k}</button>`).join('');
+  return `<div class="add ${t}">${head}
+    <button class="chosen press" data-act="chcat"><span class="dot">${ic(catIcon(t,A.c))}</span><span>${catLabel(t,A.c)}</span><span class="sw">${ic('back')}</span></button>
+    <button class="amt ${A.digits?'':'empty0'}" style="font-size:${fit(s,58,Math.min(innerWidth,520)-40)}px" id="amt" data-act="hearamt" aria-live="polite">${s}</button>
+    <div class="dates">
+      <button class="chip press" data-act="date" data-d="${today()}" aria-pressed="${d===today()}">Hoy</button>
+      <button class="chip press" data-act="date" data-d="${yest()}" aria-pressed="${d===yest()}">Ayer</button>
+      <label class="chip" aria-pressed="${custom}" aria-label="Escoger otro día">${ic('cal')}<span id="cdate">${custom?dlabel(d):''}</span><input type="date" id="dpick" max="${today()}" value="${d}"></label></div>
+    <div class="keys">${keys}</div>
+    <button class="ok press" id="ok" data-act="ok" aria-disabled="${A.digits?'false':'true'}">${ic('check')}<span>Listo</span></button></div>`;
+}
+
+function layers(){
+  let h='';
+  if(S.sel){
+    const i=D.items.find(x=>x.id===S.sel);
+    if(i) h+=`<div class="layer"><div class="scrim" data-act="keep"></div><div class="sheet" role="dialog" aria-label="Borrar este movimiento">
+      <div class="row"><span class="dot ${i.t}">${ic(catIcon(i.t,i.c))}</span><span><div class="nm">${catLabel(i.t,i.c)}</div><div class="dt">${dlabel(i.d)}</div></span><span class="am ${i.t}">${i.t==='in'?'+':'−'}${money(i.a)}</span></div>
+      <div class="dual"><button class="del press" data-act="del">${ic('trash')}<span>Borrar</span></button><button class="keep press" data-act="keep">${ic('back')}<span>Dejar</span></button></div></div></div>`;
+  }
+  if(S.flash) h+=`<div class="flash ${S.flash}">${ic('check')}<b>Guardado</b></div>`;
+  return h;
+}
+
+function render(){
+  const app=$('#app');
+  const sc=app.querySelector('.scroll'); const st=sc?sc.scrollTop:0;
+  app.innerHTML=(S.add?viewAdd():(S.tab==='home'?viewHome():viewMes()))+layers();
+  const sc2=app.querySelector('.scroll'); if(sc2&&!S.add)sc2.scrollTop=st;
+}
+function patchAmt(){
+  const a=$('#amt'); if(!a)return;
+  const s=amtStr(); a.textContent=s;
+  a.className='amt '+(S.add.digits?'':'empty0');
+  a.style.fontSize=fit(s,58,Math.min(innerWidth,520)-40)+'px';
+  const ok=$('#ok'); if(ok)ok.setAttribute('aria-disabled',S.add.digits?'false':'true');
+}
+
+/* ---------- acciones ---------- */
+function summaryText(){
+  const [y,m]=S.mo.split('-').map(Number);
+  const mi=sum('in',i=>ym(i.d)===S.mo), mo=sum('out',i=>ym(i.d)===S.mo), net=mi-mo;
+  return `${MES[m-1]}. Entró ${pesos(mi)}. Salió ${pesos(mo)}. `+(net<0?`Quedó en menos ${pesos(-net)}.`:`Quedó ${pesos(net)}.`);
+}
+function act(a,el){
+  buzz();
+  switch(a){
+    case 'sound': D.sound=!D.sound; save(); render(); if(D.sound)say('Voz encendida'); else stopSay(); break;
+    case 'tab': S.tab=el.dataset.tab; render(); say(S.tab==='home'?'Inicio':'Resumen del mes'); break;
+    case 'start': S.add={t:el.dataset.t,c:null,digits:'',date:today()}; render(); say(S.add.t==='in'?'Entró plata. ¿De dónde vino?':'Salió plata. ¿En qué se fue?'); break;
+    case 'back': if(S.add.c&&!S.add.fromChange){S.add.c=null;S.add.digits='';render()}else{S.add=null;render()} break;
+    case 'cat': S.add.c=el.dataset.c; render(); say(catLabel(S.add.t,S.add.c)+'. ¿Cuánta plata?'); break;
+    case 'chcat': S.add.c=null; render(); break;
+    case 'key': {
+      const k=el.dataset.k; let d=S.add.digits;
+      if(k==='x')d=d.slice(0,-1);
+      else{ if(!d&&(k==='0'||k==='000'))break; d=(d+k).slice(0,9); }
+      S.add.digits=d; patchAmt();
+      if(d)sayLater(pesos(+d),900); else clearTimeout(tmr);
+      break;}
+    case 'hearamt': say(S.add.digits?pesos(+S.add.digits):'Escriba cuánta plata',true); break;
+    case 'date': S.add.date=el.dataset.d; render(); say(el.textContent.trim()); break;
+    case 'ok': {
+      if(!S.add.digits){say('Escriba cuánta plata');break}
+      const A=S.add, it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:A.t,c:A.c,a:+A.digits,d:A.date,ts:Date.now()};
+      D.items.push(it); save();
+      say(`${A.t==='in'?'Entró':'Salió'} ${pesos(it.a)}. Guardado`);
+      S.add=null; S.tab='home'; S.flash=A.t; render();
+      setTimeout(()=>{S.flash=null;render()},1100);
+      break;}
+    case 'row': S.sel=el.dataset.id; render(); {const i=D.items.find(x=>x.id===S.sel); if(i)say(`${catLabel(i.t,i.c)}, ${pesos(i.a)}. ¿Borrar?`)} break;
+    case 'del': D.items=D.items.filter(x=>x.id!==S.sel); S.sel=null; save(); render(); say('Borrado'); break;
+    case 'keep': S.sel=null; render(); break;
+    case 'prev': {let [y,m]=S.mo.split('-').map(Number); m--; if(m<1){m=12;y--} S.mo=`${y}-${pad(m)}`; render(); break;}
+    case 'next': {let [y,m]=S.mo.split('-').map(Number); m++; if(m>12){m=1;y++} const n=`${y}-${pad(m)}`; if(n<=ym(today())){S.mo=n;render()} break;}
+    case 'hello': say('Toque el botón verde cuando entre plata. Toque el botón rojo cuando salga plata.',true); break;
+    case 'hearbal': {const b=sum('in')-sum('out'); say(b<0?`Debe ${pesos(-b)}`:`Tiene ${pesos(b)}`,true); break;}
+    case 'hearmes': say(summaryText(),true); break;
+    case 'export': exportData(); break;
+    case 'import': {const n=NB(); if(n&&n.openFile){n.openFile()}else{$('#file').click()} break;}
+  }
+}
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el||el.disabled)return;
+  act(el.dataset.act,el);
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='dpick'&&S.add&&e.target.value){S.add.date=e.target.value;render();say(dlabel(S.add.date))}
+});
+
+/* ---------- copia de seguridad ---------- */
+function exportData(){
+  try{
+    const n=NB();
+    if(n&&n.saveFile){n.saveFile(`mis-cuentas-${today()}.json`,JSON.stringify({app:'miscuentas',v:1,items:D.items},null,1));return}
+  }catch(e){}
+  try{
+    const blob=new Blob([JSON.stringify({app:'miscuentas',v:1,items:D.items},null,1)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`mis-cuentas-${today()}.json`;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+    say('Copia guardada');
+  }catch(e){}
+}
+function mergeImport(o){
+  const ids=new Set(D.items.map(i=>i.id)); let n=0;
+  (o.items||[]).filter(valid).forEach(i=>{if(!ids.has(i.id)){D.items.push({id:i.id,t:i.t,c:String(i.c||'otro'),a:i.a,d:i.d,ts:i.ts||0});n++}});
+  save(); render(); say(n?'Copia recuperada':'Ya estaba todo');
+}
+$('#file').addEventListener('change',ev=>{
+  const f=ev.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{mergeImport(JSON.parse(r.result))}catch(e){say('Ese archivo no sirve')}};
+  r.readAsText(f); ev.target.value='';
+});
+/* ganchos para la versión Android (APK) */
+window.__saved=()=>say('Copia guardada');
+window.__restore=b=>{try{const bin=atob(b);const u=Uint8Array.from(bin,c=>c.charCodeAt(0));mergeImport(JSON.parse(new TextDecoder().decode(u)))}catch(e){say('Ese archivo no sirve')}};
+window.__back=()=>{
+  if(S.sel){S.sel=null;render();return}
+  if(S.add){if(S.add.c){S.add.c=null;S.add.digits='';render()}else{S.add=null;render()}return}
+  if(S.tab==='mes'){S.tab='home';render();return}
+  try{const n=NB();if(n&&n.exit)n.exit()}catch(e){}
+};
+
+/* ---------- arranque ---------- */
+load(); render();
+try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist() }catch(e){}
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+})();
+</script>
+</body>
+</html>
