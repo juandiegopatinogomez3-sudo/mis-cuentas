@@ -105,6 +105,17 @@ button:focus-visible,label:focus-within{outline:3px solid #1D4ED8;outline-offset
 .backup{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:26px}
 .backup button{height:76px;border-radius:18px;background:#fff;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:16px;font-weight:700}
 .backup .ic{font-size:30px}
+/* instalar */
+.inst{width:100%;min-height:64px;margin:8px 0 2px;border-radius:18px;background:#1D4ED8;color:#fff;font-size:21px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 14px}
+.inst .ic{font-size:30px}
+.steps{display:flex;flex-direction:column;gap:16px;margin:4px 0 18px}
+.steps h2{margin:0 0 4px;font-size:26px;font-weight:800;display:flex;align-items:center;gap:12px}
+.steps h2 .ic{font-size:32px;color:#1D4ED8}
+.step{display:flex;align-items:center;gap:14px;font-size:21px;font-weight:700;line-height:1.25}
+.step .num{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800;flex:none}
+.step .ic{font-size:28px;vertical-align:-6px;color:#1D4ED8}
+.got{width:100%;height:68px;border-radius:20px;background:var(--ink);color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px}
+.got .ic{font-size:32px}
 .warn{background:#FFF1C9;border:2px solid #E5B93A;border-radius:14px;padding:10px 14px;font-size:17px;font-weight:700;margin:6px 20px 0}
 
 /* agregar */
@@ -188,6 +199,10 @@ const P={
  disk:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-7h8v7"/>',
  load:'<path d="M3 8a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 17v-5M9.5 14.5L12 12l2.5 2.5"/>',
  list:'<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>',
+ inst:'<rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 7v8M8.8 12l3.2 3.2 3.2-3.2"/>',
+ share:'<path d="M12 3v12M8 7l4-4 4 4"/><path d="M8 10H6a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 6 21h12a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18 10h-2"/>',
+ dots:'<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>',
+ plusbox:'<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/>',
  /* gastos */
  comida:'<path d="M6 3v6a3 3 0 0 0 6 0V3M9 3v6M9 12v9"/><path d="M18 21V3c-2.5 1.5-3.5 4.5-3.5 8H18"/>',
  casa:'<path d="M3 11l9-8 9 8M5 9.5V20h14V9.5M10 20v-6h4v6"/>',
@@ -280,7 +295,27 @@ const pesos=n=>`${Math.round(n)} pesos`;
 
 /* ---------- estado de pantalla ---------- */
 const now=new Date();
-let S={tab:'home',mo:`${now.getFullYear()}-${pad(now.getMonth()+1)}`,add:null,sel:null,flash:null};
+let S={tab:'home',mo:`${now.getFullYear()}-${pad(now.getMonth()+1)}`,add:null,sel:null,flash:null,inst:false};
+
+/* ---------- instalar en el celular ---------- */
+let deferredPrompt=null;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isInstalled=()=>{
+  try{if(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)return true}catch(e){}
+  return navigator.standalone===true||!!NB();
+};
+let installed=isInstalled();
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!S.add)render()});
+window.addEventListener('appinstalled',()=>{installed=true;deferredPrompt=null;S.inst=false;render();say('Listo. La app quedó en el celular',true)});
+async function install(){
+  if(deferredPrompt){
+    const p=deferredPrompt; deferredPrompt=null;
+    try{p.prompt(); const r=await p.userChoice; if(r&&r.outcome==='accepted'){installed=true;render();return}}catch(e){}
+    render(); return;
+  }
+  S.inst=true; render();
+  say(isIOS?'Toque el botón compartir. Luego, agregar a inicio.':'Toque los tres puntos arriba. Luego, instalar app.',true);
+}
 
 /* ---------- vistas ---------- */
 function rowHtml(i){
@@ -318,6 +353,7 @@ function viewHome(){
     body=`<div class="h2">${ic('list')}<span>Últimos</span></div>${last.map(rowHtml).join('')}`;
   }
   return `${top()}<main class="scroll">
+    ${installed?'':`<button class="inst press" data-act="install">${ic('inst')}<span>Instalar en el celular</span></button>`}
     <section class="bal"><div class="lbl">Tengo</div>
       <div class="n ${bal<0?'neg':''}" style="font-size:${fit(bs,58,Math.min(innerWidth,520)-40)}px" data-act="hearbal" role="button" tabindex="0">${bs}</div>
       <div class="cap">Este mes</div><div class="mini"><span class="i">${ic('in')}${money(mi)}</span><span class="o">${ic('out')}${money(mo)}</span></div></section>
@@ -389,6 +425,15 @@ function layers(){
       <div class="row"><span class="dot ${i.t}">${ic(catIcon(i.t,i.c))}</span><span><div class="nm">${catLabel(i.t,i.c)}</div><div class="dt">${dlabel(i.d)}</div></span><span class="am ${i.t}">${i.t==='in'?'+':'−'}${money(i.a)}</span></div>
       <div class="dual"><button class="del press" data-act="del">${ic('trash')}<span>Borrar</span></button><button class="keep press" data-act="keep">${ic('back')}<span>Dejar</span></button></div></div></div>`;
   }
+  if(S.inst){
+    const st=(n,html)=>`<div class="step"><span class="num">${n}</span><span>${html}</span></div>`;
+    const body=isIOS
+      ? st(1,`Toque ${ic('share')} <b>Compartir</b> (abajo)`)+st(2,`Toque ${ic('plusbox')} <b>Agregar a inicio</b>`)+st(3,`Toque <b>Agregar</b>`)
+      : st(1,`Toque ${ic('dots')} arriba a la derecha`)+st(2,`Toque <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>`)+st(3,`Toque <b>Instalar</b>`);
+    h+=`<div class="layer"><div class="scrim" data-act="instclose"></div><div class="sheet" role="dialog" aria-label="Cómo instalar">
+      <div class="steps"><h2>${ic('inst')}<span>Instalar</span></h2>${body}</div>
+      <button class="got press" data-act="instclose">${ic('check')}<span>Entendido</span></button></div></div>`;
+  }
   if(S.flash) h+=`<div class="flash ${S.flash}">${ic('check')}<b>Guardado</b></div>`;
   return h;
 }
@@ -447,6 +492,8 @@ function act(a,el){
     case 'hello': say('Toque el botón verde cuando entre plata. Toque el botón rojo cuando salga plata.',true); break;
     case 'hearbal': {const b=sum('in')-sum('out'); say(b<0?`Debe ${pesos(-b)}`:`Tiene ${pesos(b)}`,true); break;}
     case 'hearmes': say(summaryText(),true); break;
+    case 'install': install(); break;
+    case 'instclose': S.inst=false; render(); break;
     case 'export': exportData(); break;
     case 'import': {const n=NB(); if(n&&n.openFile){n.openFile()}else{$('#file').click()} break;}
   }
@@ -487,6 +534,7 @@ $('#file').addEventListener('change',ev=>{
 window.__saved=()=>say('Copia guardada');
 window.__restore=b=>{try{const bin=atob(b);const u=Uint8Array.from(bin,c=>c.charCodeAt(0));mergeImport(JSON.parse(new TextDecoder().decode(u)))}catch(e){say('Ese archivo no sirve')}};
 window.__back=()=>{
+  if(S.inst){S.inst=false;render();return}
   if(S.sel){S.sel=null;render();return}
   if(S.add){if(S.add.c){S.add.c=null;S.add.digits='';render()}else{S.add=null;render()}return}
   if(S.tab==='mes'){S.tab='home';render();return}
